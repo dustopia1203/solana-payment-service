@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <label for="amount">Nhập số lượng token</label>
+    <input type="number" name="amount" id="amount">
+    <button onclick="handleGeneratePaymentQr()">Thanh toán</button>
+    <div id="payment-qr"></div>
+    <div id="payment-result"></div>
+
+    <script>
+        async function handleGeneratePaymentQr() {
+            const amount = document.getElementById('amount').value;
+
+            const response = await fetch('http://localhost:3000/api/create-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ amount })
+            });
+
+            if (!response.ok) {
+                window.alert('Tạo mã thanh toán thất bại');
+                return;
+            }
+
+            const { url, qrCode, reference } = await response.json();
+
+            document.getElementById('payment-qr').innerHTML = `
+                <div id="url">url: ${url}</div>
+                <img src="${qrCode}" alt="QR Code">
+                <div id="reference">reference: ${reference}</div>
+                <button onclick="handleCheckPayment()">Kiểm tra</button>
+            `;
+        }
+
+        async function handleCheckPayment() {
+            const reference = document.getElementById('reference').textContent.split(" ")[1];
+
+            const response = await fetch(`http://localhost:3000/api/check-payment/${reference}`);
+
+            if (!response.ok) {
+                window.alert('Kiểm tra giao dịch thất bại');
+                return;
+            }
+
+            const { status, signature } = await response.json();
+
+            document.getElementById('payment-result').innerHTML = `
+                <div id="status">status: ${status}</div>
+                <div id="signature">signature: ${signature}</div>
+            `;
+        }
+    </script>
+</body>
+
+</html>
