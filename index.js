@@ -8,7 +8,7 @@ import BigNumber from 'bignumber.js';
 import QRCode from 'qrcode';
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.SERVER_PORT || 3000;
 
 const network = process.env.NETWORK || 'devnet';
 const walletAddress = process.env.WALLET_ADDRESS;
